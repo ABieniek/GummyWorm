@@ -1,0 +1,24 @@
+build/SDL_syshaptic.lo: \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/SDL_syshaptic.c \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../SDL_internal.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../dynapi/SDL_dynapi.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../dynapi/SDL_dynapi_overrides.h \
+ include/SDL_config.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_platform.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/begin_code.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/close_code.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_assert.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_config.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_haptic.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_stdinc.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_error.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_joystick.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../SDL_syshaptic.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../SDL_internal.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/include/SDL_joystick.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../joystick/SDL_sysjoystick.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../joystick/../SDL_internal.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../joystick/SDL_joystick_c.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../joystick/linux/SDL_sysjoystick_c.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../core/linux/SDL_udev.h \
+ /home/alex/Projects/GummyWorm/desktopController/SDL/src/haptic/linux/../../core/linux/../../SDL_internal.h
