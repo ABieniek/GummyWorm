@@ -1,5 +1,5 @@
 #include "SDL/include/SDL.h"
-#include <SDL_image.h>
+#include "SDL/SDL2_image-2.0.2/SDL_image.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[]) {

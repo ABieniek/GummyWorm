@@ -861,7 +861,7 @@ configure:16641: $? = 0
 configure:16641: result: yes
 configure:16641: checking for strlcpy
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccWcir6Y.o: In function `main':
+/tmp/ccuy9ev4.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:98: undefined reference to `strlcpy'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -970,7 +970,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for strlcat
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccYVXWH5.o: In function `main':
+/tmp/ccqUQdrc.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:98: undefined reference to `strlcat'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1079,7 +1079,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _strrev
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/cci62oLb.o: In function `main':
+/tmp/cceCR9Qg.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:98: undefined reference to `_strrev'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1188,7 +1188,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _strupr
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccy4m3nj.o: In function `main':
+/tmp/ccKY9tgn.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:98: undefined reference to `_strupr'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1297,7 +1297,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _strlwr
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccaMM36o.o: In function `main':
+/tmp/ccykjihv.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:98: undefined reference to `_strlwr'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1427,7 +1427,7 @@ configure:16641: $? = 0
 configure:16641: result: yes
 configure:16641: checking for itoa
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/cccUAUUx.o: In function `main':
+/tmp/ccu0vGmQ.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:101: undefined reference to `itoa'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1539,7 +1539,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _ltoa
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccSNHSMF.o: In function `main':
+/tmp/cc8eeflZ.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:101: undefined reference to `_ltoa'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1651,7 +1651,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _uitoa
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccS5D1aJ.o: In function `main':
+/tmp/ccecky24.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:101: undefined reference to `_uitoa'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1763,7 +1763,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _ultoa
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccCLsQ6P.o: In function `main':
+/tmp/cccBEOHa.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:101: undefined reference to `_ultoa'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1883,7 +1883,7 @@ configure:16641: $? = 0
 configure:16641: result: yes
 configure:16641: checking for _i64toa
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccsqU0r5.o: In function `main':
+/tmp/ccFMBZqm.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:103: undefined reference to `_i64toa'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -1997,7 +1997,7 @@ configure: failed program was:
 configure:16641: result: no
 configure:16641: checking for _ui64toa
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccKjJ4ue.o: In function `main':
+/tmp/cceXV2kg.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:103: undefined reference to `_ui64toa'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -2141,7 +2141,7 @@ configure:16641: $? = 0
 configure:16641: result: yes
 configure:16641: checking for _stricmp
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccqBAUiX.o: In function `main':
+/tmp/cc0rqAx0.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:109: undefined reference to `_stricmp'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -2268,7 +2268,7 @@ configure:16641: $? = 0
 configure:16641: result: yes
 configure:16641: checking for _strnicmp
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccUu7Eaa.o: In function `main':
+/tmp/ccKFRWne.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:110: undefined reference to `_strnicmp'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -2438,7 +2438,7 @@ configure:16641: $? = 0
 configure:16641: result: yes
 configure:16641: checking for sysctlbyname
 configure:16641: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c  >&5
-/tmp/ccClgtVW.o: In function `main':
+/tmp/cc8iM6Ql.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:120: undefined reference to `sysctlbyname'
 collect2: error: ld returned 1 exit status
 configure:16641: $? = 1
@@ -3866,7 +3866,7 @@ configure:23143: $? = 0
 configure:23149: result: yes
 configure:23153: checking for dlopen in -lc
 configure:23178: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos    conftest.c -lc   -lm >&5
-/tmp/ccAj7grp.o: In function `main':
+/tmp/cccA7smy.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:138: undefined reference to `dlopen'
 collect2: error: ld returned 1 exit status
 configure:23178: $? = 1
@@ -7835,7 +7835,7 @@ configure:22802: $? = 0
 configure:22816: result: yes
 configure:22819: checking for pthread_set_name_np
 configure:22839: gcc -o conftest -g -O2 -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos   -D_REENTRANT  -Iinclude -I/home/alex/Projects/GummyWorm/desktopController/SDL/include -idirafter /home/alex/Projects/GummyWorm/desktopController/SDL/src/video/khronos     conftest.c  -lm -lpthread >&5
-/tmp/ccmS3QNb.o: In function `main':
+/tmp/cc9Jrl3l.o: In function `main':
 /home/alex/Projects/GummyWorm/desktopController/SDL/build/conftest.c:167: undefined reference to `pthread_set_name_np'
 collect2: error: ld returned 1 exit status
 configure:22839: $? = 1
