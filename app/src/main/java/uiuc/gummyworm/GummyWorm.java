@@ -32,9 +32,17 @@ import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 
 import java.io.IOException;
+import java.net.SocketAddress;
+import java.net.SocketOption;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.MembershipKey;
+import java.util.Set;
 
 
 public class GummyWorm extends AppCompatActivity {
@@ -56,6 +64,7 @@ public class GummyWorm extends AppCompatActivity {
     private static String strIpv6address = "0.0.0.0";
     private static int portnumber = 2410;
     private NetworkSetupUDP ns;
+    private DatagramChannel channel;
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -164,15 +173,36 @@ public class GummyWorm extends AppCompatActivity {
                 /*Handler*/);
     }
 
+    private void startConnection(){
+        try{
+            channel = DatagramChannel.open();
+            channel.socket().bind(new InetSocketAddress(portnumber));
+        }
+        catch (IOException e)
+        {
+            Snackbar.make(getWindow().getDecorView().getRootView(), e.getMessage(), Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
+    }
+
     private void initRecorder() {
         Runnable r = new Runnable() {
             public void run() {
+                String temp = "";
                 try {
                     // network
-                    strIpv6address = "fe80::7a48:ab19:a92d:89a5"; //Ipv6TextView.getText().toString();
+                    startConnection();
+                    strIpv6address = "172.22.148.105";
+                    while (strIpv6address == "172.22.148.105") {
+                        ByteBuffer buf = ByteBuffer.allocate(100);
+                        buf.clear();
+                        buf.put(strIpv6address.getBytes());
+                        buf.flip();
+                        int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 5000));
+                    }
+                    temp = Ipv6TextView.getText().toString();
                     // Inet6Address tempInet6Address = (Inet6Address) InetAddress.getByName(strIpv6address);
-                    ns = new NetworkSetupUDP(strIpv6address, portnumber);
-                    ns.initNetwork();
+
                     // DatagramSocket socket = new DatagramSocket(portnumber, tempInet6Address);
                     //ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
                     mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -192,7 +222,8 @@ public class GummyWorm extends AppCompatActivity {
                     mMediaRecorder.setOrientationHint(orientation);
                     mMediaRecorder.prepare();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Snackbar.make(getWindow().getDecorView().getRootView(), temp, Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
             }
         };

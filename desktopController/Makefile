@@ -1,10 +1,14 @@
 #OBJS specifies which files to compile as part of the project
-OBJS = desktopController.cpp
+OBJS = desktopController.c
 
-#OBJ_NAME specifies the name of our exectuable
-OBJ_NAME = desktopController
+# stuff from https://www.libsdl.org/projects/SDL_image/docs/demos/Makefile
+COMPILER = gcc
+CFLAGS= -O2 -Wall $(shell sdl2-config --cflags)
+LDFLAGS= -O2 -Wall $(shell sdl2-config --libs) -lSDL2_image
+PROGRAMS= desktopController
 
 #This is the target that compiles our executable
-all : $(OBJS)
-	g++ $(OBJS) -w -lSDL2 -lSDL_image -o $(OBJ_NAME)
+all : $(PROGRAMS)
 
+$(PROGRAMS): $(OBJS)
+	$(COMPILER) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@
