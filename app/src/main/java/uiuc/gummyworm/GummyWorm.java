@@ -44,9 +44,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.MembershipKey;
 import java.util.Set;
 
-
 public class GummyWorm extends AppCompatActivity {
-
     private static final String TAG = "GummyWorm";
     private static final int REQUEST_CODE = 1000;
     private int mScreenDensity;
@@ -65,7 +63,6 @@ public class GummyWorm extends AppCompatActivity {
     private static int portnumber = 2410;
     private NetworkSetupUDP ns;
     private DatagramChannel channel;
-
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
@@ -193,12 +190,18 @@ public class GummyWorm extends AppCompatActivity {
                     // network
                     startConnection();
                     strIpv6address = "172.22.148.105";
-                    while (strIpv6address == "172.22.148.105") {
+                    String aaa = "Hi\n";
+                    String bbb = "Melanie\n";
+                    int s = 0;
+                    while (strIpv6address == "172.22.148.105")
+                    {
                         ByteBuffer buf = ByteBuffer.allocate(100);
                         buf.clear();
-                        buf.put(strIpv6address.getBytes());
+                        if (s%2== 0) buf.put(aaa.getBytes());
+                        else buf.put(bbb.getBytes());
+                        s++;
                         buf.flip();
-                        int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 5000));
+                        int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 2410));
                     }
                     temp = Ipv6TextView.getText().toString();
                     // Inet6Address tempInet6Address = (Inet6Address) InetAddress.getByName(strIpv6address);
@@ -229,7 +232,6 @@ public class GummyWorm extends AppCompatActivity {
         };
         new Thread(r).start();
     }
-
 
     private class MediaProjectionCallback extends MediaProjection.Callback {
         @Override
