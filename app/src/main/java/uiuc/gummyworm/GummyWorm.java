@@ -213,13 +213,13 @@ public class GummyWorm extends AppCompatActivity {
 
                     mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-                    mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                    mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
                     mMediaRecorder.setOutputFile(Environment
                            .getExternalStoragePublicDirectory(Environment
                                     .DIRECTORY_DOWNLOADS) + "/temp.webm");
                     mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-                    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
+                    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.VORBIS);
                     mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
                     mMediaRecorder.setVideoFrameRate(30);
                     int rotation = getWindowManager().getDefaultDisplay().getRotation();
