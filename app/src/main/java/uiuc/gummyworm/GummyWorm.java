@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
@@ -28,6 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -61,7 +65,6 @@ public class GummyWorm extends AppCompatActivity {
     private TextView Ipv6TextView;
     private static String strIpv6address = "0.0.0.0";
     private static int portnumber = 2410;
-    private NetworkSetupUDP ns;
     private DatagramChannel channel;
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -204,17 +207,13 @@ public class GummyWorm extends AppCompatActivity {
                         int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 2410));
                     }
                     temp = Ipv6TextView.getText().toString();
-                    // Inet6Address tempInet6Address = (Inet6Address) InetAddress.getByName(strIpv6address);
-
-                    // DatagramSocket socket = new DatagramSocket(portnumber, tempInet6Address);
-                    //ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+                    
                     mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
                     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                    mMediaRecorder.setOutputFile(ns.getPFD().getFileDescriptor());
-                    //mMediaRecorder.setOutputFile(Environment
-                    //       .getExternalStoragePublicDirectory(Environment
-                    //                .DIRECTORY_DOWNLOADS) + "/temp.mp4");
+                    mMediaRecorder.setOutputFile(Environment
+                           .getExternalStoragePublicDirectory(Environment
+                                    .DIRECTORY_DOWNLOADS) + "/temp.mp4");
                     mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
                     mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
                     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
