@@ -207,7 +207,7 @@ public class GummyWorm extends AppCompatActivity {
                         int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 2410));
                     }
                     temp = Ipv6TextView.getText().toString();
-                    
+
                     mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
                     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
