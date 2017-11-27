@@ -190,6 +190,7 @@ public class GummyWorm extends AppCompatActivity {
             public void run() {
                 String temp = "";
                 try {
+                    /*
                     // network
                     startConnection();
                     strIpv6address = "172.22.148.105";
@@ -207,13 +208,15 @@ public class GummyWorm extends AppCompatActivity {
                         int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 2410));
                     }
                     temp = Ipv6TextView.getText().toString();
+                    */
+
 
                     mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
                     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                     mMediaRecorder.setOutputFile(Environment
                            .getExternalStoragePublicDirectory(Environment
-                                    .DIRECTORY_DOWNLOADS) + "/temp.mp4");
+                                    .DIRECTORY_DOWNLOADS) + "/temp.webm");
                     mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
                     mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
                     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
