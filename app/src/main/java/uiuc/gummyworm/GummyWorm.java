@@ -221,7 +221,7 @@ public class GummyWorm extends AppCompatActivity {
 
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
-            startConnection("127.0.0.1", portnumber);
+            startConnection("172.22.148.105", portnumber);
             String dir1 = Environment
                     .getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS) + "/buff1.webm";
@@ -275,6 +275,7 @@ public class GummyWorm extends AppCompatActivity {
                 }
                 catch (IOException e)
                 {
+                    e.printStackTrace();
                     Snackbar.make(getWindow().getDecorView().getRootView(), e.getMessage(), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 }

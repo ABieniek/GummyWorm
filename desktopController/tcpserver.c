@@ -23,7 +23,9 @@ int main( int argc, char *argv[] )
         perror("ERROR opening socket");
         return(1);
     }
-    if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
+
+    int optval = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
         perror("setsockopt");
         exit(5);
     }
@@ -52,8 +54,9 @@ int main( int argc, char *argv[] )
         perror("ERROR on accept");
         return(1);
     }
+    printf("Made connection\n");
     int flag = 0; // 0 when reading filesize, 1 when reading data
-    long filesize = sizeof(long); // default
+    long filesize = 0; // default
     char *eptr;
     FILE *writefp = fopen("wm.webm", "wb");
     if (writefp == NULL) {
@@ -107,5 +110,6 @@ int main( int argc, char *argv[] )
     close(sockfd);
     return 0;
 }
+
 
 
