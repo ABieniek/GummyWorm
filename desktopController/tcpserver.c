@@ -14,7 +14,6 @@ int main( int argc, char *argv[] )
     int sockfd, clisockfd, portno;
     char *end = "bye\n";
     socklen_t clilen;
-    char buffer[1024];
     struct sockaddr_in serv_addr, cli_addr;
     int  n;
 
@@ -51,15 +50,17 @@ int main( int argc, char *argv[] )
         return(1);
     }
     int flag = 0; // 0 when reading filesize, 1 when reading data
-    long filesize = 0;
+    long filesize = sizeof(long); // default
     char *eptr;
     FILE *writefp = fopen("wm.webm", "wb");
     if (writefp == NULL) {
         printf("Error to open file\n");
     }
+    
+    char buffer[1024];
     while (strcmp(end, buffer) !=0)
     {
-        bzero(buffer,1024);
+        bzero(buffer, 1024);
         if (flag == 0) {
             n = read(clisockfd, buffer, sizeof(long));
             if (n < 0) {
@@ -80,7 +81,6 @@ int main( int argc, char *argv[] )
             
             }
 //            printf("tried to write %s\n", buffer);
-//            fprintf(writefp, "%s", buffer);
         }
         flag = (flag+1)%2;
 /*
