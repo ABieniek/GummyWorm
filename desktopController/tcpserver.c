@@ -52,9 +52,8 @@ int main( int argc, char *argv[] )
     }
     int flag = 0; // 0 when reading filesize, 1 when reading data
     long filesize = 0;
-    printf("size of long: %ld\n", sizeof(long));
     char *eptr;
-    FILE *writefp = fopen("wm.txt", "wb");
+    FILE *writefp = fopen("wm.webm", "wb");
     if (writefp == NULL) {
         printf("Error to open file\n");
     }
@@ -68,7 +67,7 @@ int main( int argc, char *argv[] )
                 return(1);
             }
             filesize = strtol(buffer, &eptr, 10);
-            printf("filesize: %ld\n", filesize);
+//            printf("filesize: %ld\n", filesize);
         } else {
             n = read(clisockfd, buffer, filesize);
             if (n < 0) {
@@ -80,11 +79,10 @@ int main( int argc, char *argv[] )
                 printf("Error writing fo file\n");
             
             }
-            printf("tried to write %s\n", buffer);
+//            printf("tried to write %s\n", buffer);
 //            fprintf(writefp, "%s", buffer);
         }
         flag = (flag+1)%2;
-        printf("flag: %d\n", flag);
 /*
         bzero(buffer,256);
         // If connection is established then start communicating 
@@ -102,7 +100,7 @@ int main( int argc, char *argv[] )
         }
 */
     }
-
+    fclose(writefp);
     close(sockfd);
     return 0;
 }
