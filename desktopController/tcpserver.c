@@ -6,10 +6,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <stdbool.h>
 
+ssize_t write_all_to_socket(int socket,  char *buffer, long count);
+ssize_t read_all_from_socket(int socket,  char *buffer, long count);
 
-int main( int argc, char *argv[] )
-{
+int main( int argc, char *argv[] ) {
     printf("Wating for connection...\n");
     int sockfd, clisockfd, portno;
     char *end = "bye\n";
@@ -38,8 +42,7 @@ int main( int argc, char *argv[] )
     serv_addr.sin_port = htons(portno);
 
 
-    if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
-    {
+    if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
         perror("ERROR on binding");
         return(1);
     }
@@ -49,34 +52,56 @@ int main( int argc, char *argv[] )
 
     clisockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 
-    if (clisockfd < 0) 
-    {
+    if (clisockfd < 0) {
         perror("ERROR on accept");
         return(1);
     }
     printf("Made connection\n");
-    int flag = 0; // 0 when reading filesize, 1 when reading data
+    bool flag = 0; // 0 when reading filesize, 1 when reading data
     long filesize = 0; // default
     char *eptr;
-    FILE *writefp = fopen("wm.webm", "wb");
-    if (writefp == NULL) {
-        printf("Error to open file\n");
-    }
+    
     
     char buffer[1024];
-    while (strcmp(end, buffer) !=0)
-    {
+    ssize_t sizeleft = 0;
+    while (strcmp(end, buffer) !=0) {
         bzero(buffer, 1024);
-        if (flag == 0) {
+        if (flag == false) {
             n = read(clisockfd, buffer, sizeof(long));
             if (n < 0) {
                 perror("ERROR reading from socket");
                 return(1);
             }
-            filesize = strtol(buffer, &eptr, 10);
-//            printf("filesize: %ld\n", filesize);
+            memcpy(&filesize, buffer, sizeof(long));
+            // flip byte order of entire long
+            /*long temp = 0;
+            long* sizeptr = &filesize; long* tempptr = &temp;
+            for (int i = 0; i < 4; i++){
+                tempptr[i] = ntohs(sizeptr[i]);
+            }*/
+            filesize = htonl(filesize);
+            //filesize = htonl(filesize);
+            sizeleft = filesize;
+            printf("filesize: %ld\n", filesize);
+            return 0;
         } else {
+            FILE *writefp = fopen("wm.webm", "w");
+            if (writefp == NULL) {
+                printf("Error to open file\n");
+            }
+            while (sizeleft > 0) {
+                int readsize = 1024; if (sizeleft < 1024) readsize = sizeleft;
+                n = read_all_from_socket(clisockfd, buffer, readsize);
+                if (n < 0){
+                    perror("");
+                }
+                fwrite(buffer, 1, 1024, writefp);
+                sizeleft -= n;
+            }
+            fclose(writefp);
+/*
             n = read(clisockfd, buffer, filesize);
+            //read_all_from_socket(clisockfd, buffer, filesize);
             if (n < 0) {
                 perror("ERROR reading from socket");
                 return(1);
@@ -88,28 +113,68 @@ int main( int argc, char *argv[] )
             }
 //            printf("tried to write %s\n", buffer);
         }
-        flag = (flag+1)%2;
-/*
-        bzero(buffer,256);
-        // If connection is established then start communicating 
-        n = read( clisockfd,buffer,256);
-        if (n < 0)
-        {
-            perror("ERROR reading from socket");
-            return(1);
-        }
-        printf("command: %s\n",buffer);
-        n = write(clisockfd,"Received\n",10);
-        if (n < 0) {
-            perror("ERROR writing to socket");
-            return(1);
-        }
 */
+
+        if (flag == false) flag = true;
+        else flag = false;
+        }
     }
-    fclose(writefp);
+    //fclose(writefp);
     close(sockfd);
     return 0;
 }
 
+// attemps to read all count bytes from socket into buffer
+// returns number of bytes read, 0 if socket disconnected or -1 on failure
+ssize_t read_all_from_socket(int socket, char *buffer, long count) {
+    // Your Code Here
+    ssize_t bytes_read = 0;
+    ssize_t bytes_left = (ssize_t) count;
+    
+    while (bytes_left > 0) {
+        ssize_t curr_read  = read(socket, buffer, bytes_left);
+        if (curr_read == 0) {
+            // connection closed, return total bytes read
+            return bytes_read;
+        } else if (curr_read == -1 && errno == EINTR) {
+            // read interrupted, try again
+        } else if (curr_read == -1 && errno != EINTR) {
+            // read failed, don't try again
+            return -1;
+        } else {
+            // continue reading
+            buffer += curr_read;
+            bytes_left -= curr_read;
+            bytes_read += curr_read;
+        }
+    }
+    return bytes_read;
+}
 
 
+// attempts to write all count bytes from buffer to socket
+// returns number of bytes written, 0 if socket disconnected or -1 on failure
+ssize_t write_all_to_socket(int socket, char *buffer, long count) {
+    // Your Code Here
+    ssize_t bytes_write = 0; // total bytes written
+    ssize_t bytes_left = (ssize_t) count;
+    
+    while (bytes_left > 0) {
+        ssize_t curr_write  = write(socket, buffer, bytes_left);
+        if (curr_write == 0) {
+            // connection closed, return total bytes read
+            return bytes_write;
+        } else if (curr_write == -1 && errno == EINTR) {
+            // write interrupted, try again
+        } else if (curr_write == -1 && errno != EINTR) {
+            // write failed, don't try again
+            return -1;
+        } else {
+            // continue reading
+            buffer += curr_write;
+            bytes_left -= curr_write;
+            bytes_write += curr_write;
+        }
+    }
+    return bytes_write;
+}
