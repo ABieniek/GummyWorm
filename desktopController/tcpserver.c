@@ -20,10 +20,13 @@ int main( int argc, char *argv[] )
 
     /* First call to socket() function */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-    {
+    if (sockfd < 0) {
         perror("ERROR opening socket");
         return(1);
+    }
+    if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
+        perror("setsockopt");
+        exit(5);
     }
 
     /* Initialize socket structure */
