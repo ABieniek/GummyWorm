@@ -24,7 +24,8 @@ int main( int argc, char *argv[] )
         perror("ERROR opening socket");
         return(1);
     }
-    if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
+    int optval = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1) {
         perror("setsockopt");
         exit(5);
     }
@@ -107,5 +108,6 @@ int main( int argc, char *argv[] )
     close(sockfd);
     return 0;
 }
+
 
 
