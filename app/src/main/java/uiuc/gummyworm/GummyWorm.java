@@ -67,6 +67,7 @@ public class GummyWorm extends AppCompatActivity {
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_PERMISSIONS = 10;
     private boolean running = false;
+    private boolean connected = false;
     private TextView Ipv6TextView;
     private static String strIpv6address = "0.0.0.0";
     private static int portnumber = 2410;
@@ -191,6 +192,7 @@ public class GummyWorm extends AppCompatActivity {
             public void run() {
                 int s = 0;
                 try {
+                    while (running == false) assert true;
                     while (true) {
                         if (s%2 == 1)
                             initRecorder(outputDir1);
@@ -219,7 +221,7 @@ public class GummyWorm extends AppCompatActivity {
 
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
-            //startConnection("127.0.0.1", portnumber);
+            startConnection("127.0.0.1", portnumber);
             String dir1 = Environment
                     .getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS) + "/buff1.webm";
@@ -230,11 +232,18 @@ public class GummyWorm extends AppCompatActivity {
             startOutputSwapper(dir1, dir2);
         } else {
             running = false;
+            connected = false;
             mMediaRecorder.stop();
             //mMediaRecorder.reset();
             Log.v(TAG, "Stopping Recording");
             stopScreenSharing();
-            //try{channel.close();}catch(IOException e){e.printStackTrace();}
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    try{channel.close();}catch(IOException e){e.printStackTrace();}
+                }
+            };
+            new Thread(r).start();
         }
     }
 
@@ -255,16 +264,23 @@ public class GummyWorm extends AppCompatActivity {
                 /*Handler*/);
     }
 
-    private void startConnection(String argAddress, int argPortNumber){
-        try{
-            channel = SocketChannel.open();
-            channel.connect(new InetSocketAddress(argAddress, argPortNumber));
-        }
-        catch (IOException e)
-        {
-            Snackbar.make(getWindow().getDecorView().getRootView(), e.getMessage(), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-        }
+    private void startConnection(final String argAddress, final int argPortNumber){
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    channel = SocketChannel.open();
+                    channel.connect(new InetSocketAddress(argAddress, argPortNumber));
+                    connected = true;
+                }
+                catch (IOException e)
+                {
+                    Snackbar.make(getWindow().getDecorView().getRootView(), e.getMessage(), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            }
+        };
+        new Thread(r).start();
     }
 
     private void initRecorder(final String outputDir) {
