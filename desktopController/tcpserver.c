@@ -12,9 +12,9 @@ int main( int argc, char *argv[] )
 {
     printf("Wating for connection...\n");
     int sockfd, clisockfd, portno;
-    char * end = "bye\n";
+    char *end = "bye\n";
     socklen_t clilen;
-    char buffer[256];
+    char buffer[1024];
     struct sockaddr_in serv_addr, cli_addr;
     int  n;
 
@@ -50,11 +50,42 @@ int main( int argc, char *argv[] )
         perror("ERROR on accept");
         return(1);
     }
-
+    int flag = 0; // 0 when reading filesize, 1 when reading data
+    long filesize = 0;
+    char *eptr;
+    FILE *writefp = fopen("wm.webm", "wb");
+    if (writefp == NULL) {
+        printf("Error to open file\n");
+    }
     while (strcmp(end, buffer) !=0)
     {
+        bzero(buffer,1024);
+        if (flag == 0) {
+            n = read(clisockfd, buffer, sizeof(long));
+            if (n < 0) {
+                perror("ERROR reading from socket");
+                return(1);
+            }
+            filesize = strtol(buffer, &eptr, 10);
+//            printf("filesize: %ld\n", filesize);
+        } else {
+            n = read(clisockfd, buffer, filesize);
+            if (n < 0) {
+                perror("ERROR reading from socket");
+                return(1);
+            }
+
+            if (fwrite(buffer, 1, filesize, writefp) != filesize) {
+                printf("Error writing fo file\n");
+            
+            }
+//            printf("tried to write %s\n", buffer);
+//            fprintf(writefp, "%s", buffer);
+        }
+        flag = (flag+1)%2;
+/*
         bzero(buffer,256);
-        /* If connection is established then start communicating */
+        // If connection is established then start communicating 
         n = read( clisockfd,buffer,256);
         if (n < 0)
         {
@@ -67,7 +98,9 @@ int main( int argc, char *argv[] )
             perror("ERROR writing to socket");
             return(1);
         }
+*/
     }
+    fclose(writefp);
     close(sockfd);
     return 0;
 }
