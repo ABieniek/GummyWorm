@@ -62,6 +62,7 @@ public class GummyWorm extends AppCompatActivity {
     private MediaRecorder mMediaRecorder;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_PERMISSIONS = 10;
+    private boolean running = false;
     private TextView Ipv6TextView;
     private static String strIpv6address = "0.0.0.0";
     private static int portnumber = 2410;
@@ -144,6 +145,24 @@ public class GummyWorm extends AppCompatActivity {
         mMediaRecorder.start();
     }
 
+    public void swapOutput()
+    {
+        int ms = 0;
+        try {
+            while (running) {
+                Thread.sleep(1000);
+                ms+= 1000;
+                Snackbar.make(getWindow().getDecorView().getRootView(), "time:"+ms, Snackbar.LENGTH_SHORT)
+                        .setAction("Action", null).show();
+
+            }
+        }
+        catch (InterruptedException ie){
+            ie.printStackTrace();
+        }
+
+    }
+
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
             initRecorder();
@@ -153,6 +172,7 @@ public class GummyWorm extends AppCompatActivity {
             mMediaRecorder.reset();
             Log.v(TAG, "Stopping Recording");
             stopScreenSharing();
+            running = false;
         }
     }
 
@@ -186,6 +206,7 @@ public class GummyWorm extends AppCompatActivity {
     }
 
     private void initRecorder() {
+        running = true;
         Runnable r = new Runnable() {
             public void run() {
                 String temp = "";
@@ -215,8 +236,8 @@ public class GummyWorm extends AppCompatActivity {
                     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
                     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
                     mMediaRecorder.setOutputFile(Environment
-                           .getExternalStoragePublicDirectory(Environment
-                                    .DIRECTORY_DOWNLOADS) + "/temp.webm");
+                            .getExternalStoragePublicDirectory(Environment
+                                    .DIRECTORY_DOWNLOADS) + "/temp1.webm");
                     mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
                     mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
                     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.VORBIS);
@@ -233,6 +254,14 @@ public class GummyWorm extends AppCompatActivity {
             }
         };
         new Thread(r).start();
+
+        Runnable f = new Runnable() {
+            @Override
+            public void run() {
+                    swapOutput();
+            }
+        };
+        new Thread(f).start();
     }
 
     private class MediaProjectionCallback extends MediaProjection.Callback {
