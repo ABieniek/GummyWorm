@@ -46,6 +46,10 @@ import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.MembershipKey;
+import java.nio.channels.SocketChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 public class GummyWorm extends AppCompatActivity {
@@ -66,7 +70,7 @@ public class GummyWorm extends AppCompatActivity {
     private TextView Ipv6TextView;
     private static String strIpv6address = "0.0.0.0";
     private static int portnumber = 2410;
-    private DatagramChannel channel;
+    private SocketChannel channel;
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
@@ -145,34 +149,92 @@ public class GummyWorm extends AppCompatActivity {
         mMediaRecorder.start();
     }
 
-    public void swapOutput()
+    private void sendWebm(final String dir)
     {
-        int ms = 0;
-        try {
-            while (running) {
-                Thread.sleep(1000);
-                ms+= 1000;
-                Snackbar.make(getWindow().getDecorView().getRootView(), "time:"+ms, Snackbar.LENGTH_SHORT)
-                        .setAction("Action", null).show();
+        if (!running)
+            return;
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // get the file
+                    File fos = new File(dir);
+                    // find the size of the file and send it over the network
+                    long filesize = fos.length();
+                    ByteBuffer numbuf = ByteBuffer.allocate(8); // longs are 8 bytes in java
+                    numbuf.clear();
+                    numbuf.putLong(0, filesize);
+                    channel.write(numbuf);
+                    // copy the file into a buffer and send it over the network
+                    ByteBuffer buf = ByteBuffer.allocate((int)filesize);
+                    buf.clear();
+                    buf.put(Files.readAllBytes(Paths.get(dir)));
+                    buf.flip();
+                    while (buf.hasRemaining()){
+                        channel.write(buf);
+                    }
+
+                }catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
 
             }
-        }
-        catch (InterruptedException ie){
-            ie.printStackTrace();
-        }
+        };
+        new Thread(r).start();
+    }
 
+    private void startOutputSwapper(final String outputDir1, final String outputDir2)
+    {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                int s = 0;
+                try {
+                    while (true) {
+                        if (s%2 == 1)
+                            initRecorder(outputDir1);
+                        else
+                            initRecorder(outputDir2);
+                        shareScreen();
+                        Thread.sleep(1000);
+                        Snackbar.make(getWindow().getDecorView().getRootView(), "time:" + s, Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null).show();
+                        if (!running) break;
+                        mMediaRecorder.stop();  // may be unnecessary
+                        mMediaRecorder.reset();
+                        Log.v(TAG, "Stopping Recording");
+                        //stopScreenSharing();    // may be unnecessary
+                        /*if (s%2 == 1)
+                            sendWebm(outputDir1);
+                        else
+                            sendWebm(outputDir2);*/
+                        s+=1;
+                    }
+                } catch (InterruptedException ie) {ie.printStackTrace();}
+            }
+        };
+        new Thread(r).start();
     }
 
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
-            initRecorder();
-            shareScreen();
+            //startConnection("127.0.0.1", portnumber);
+            String dir1 = Environment
+                    .getExternalStoragePublicDirectory(Environment
+                            .DIRECTORY_DOWNLOADS) + "/buff1.webm";
+            String dir2 = Environment
+                    .getExternalStoragePublicDirectory(Environment
+                            .DIRECTORY_DOWNLOADS) + "/buff2.webm";
+            running = true;
+            startOutputSwapper(dir1, dir2);
         } else {
+            running = false;
             mMediaRecorder.stop();
-            mMediaRecorder.reset();
+            //mMediaRecorder.reset();
             Log.v(TAG, "Stopping Recording");
             stopScreenSharing();
-            running = false;
+            //try{channel.close();}catch(IOException e){e.printStackTrace();}
         }
     }
 
@@ -193,10 +255,10 @@ public class GummyWorm extends AppCompatActivity {
                 /*Handler*/);
     }
 
-    private void startConnection(){
+    private void startConnection(String argAddress, int argPortNumber){
         try{
-            channel = DatagramChannel.open();
-            channel.socket().bind(new InetSocketAddress(portnumber));
+            channel = SocketChannel.open();
+            channel.connect(new InetSocketAddress(argAddress, argPortNumber));
         }
         catch (IOException e)
         {
@@ -205,63 +267,25 @@ public class GummyWorm extends AppCompatActivity {
         }
     }
 
-    private void initRecorder() {
-        running = true;
-        Runnable r = new Runnable() {
-            public void run() {
-                String temp = "";
-                try {
-                    /*
-                    // network
-                    startConnection();
-                    strIpv6address = "172.22.148.105";
-                    String aaa = "Hi\n";
-                    String bbb = "Melanie\n";
-                    int s = 0;
-                    while (strIpv6address == "172.22.148.105")
-                    {
-                        ByteBuffer buf = ByteBuffer.allocate(100);
-                        buf.clear();
-                        if (s%2== 0) buf.put(aaa.getBytes());
-                        else buf.put(bbb.getBytes());
-                        s++;
-                        buf.flip();
-                        int bytesSent = channel.send(buf, new InetSocketAddress(strIpv6address, 2410));
-                    }
-                    temp = Ipv6TextView.getText().toString();
-                    */
-
-
-                    mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-                    mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
-                    mMediaRecorder.setOutputFile(Environment
-                            .getExternalStoragePublicDirectory(Environment
-                                    .DIRECTORY_DOWNLOADS) + "/temp1.webm");
-                    mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
-                    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.VORBIS);
-                    mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
-                    mMediaRecorder.setVideoFrameRate(30);
-                    int rotation = getWindowManager().getDefaultDisplay().getRotation();
-                    int orientation = ORIENTATIONS.get(rotation + 90);
-                    mMediaRecorder.setOrientationHint(orientation);
-                    mMediaRecorder.prepare();
-                } catch (IOException e) {
-                    Snackbar.make(getWindow().getDecorView().getRootView(), temp, Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            }
-        };
-        new Thread(r).start();
-
-        Runnable f = new Runnable() {
-            @Override
-            public void run() {
-                    swapOutput();
-            }
-        };
-        new Thread(f).start();
+    private void initRecorder(final String outputDir) {
+        try{
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
+            mMediaRecorder.setOutputFile(outputDir);
+            mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
+            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.VORBIS);
+            mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
+            mMediaRecorder.setVideoFrameRate(30);
+            int rotation = getWindowManager().getDefaultDisplay().getRotation();
+            int orientation = ORIENTATIONS.get(rotation + 90);
+            mMediaRecorder.setOrientationHint(orientation);
+            mMediaRecorder.prepare();
+        } catch (IOException e) {
+            Snackbar.make(getWindow().getDecorView().getRootView(), "wow", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
     }
 
     private class MediaProjectionCallback extends MediaProjection.Callback {
