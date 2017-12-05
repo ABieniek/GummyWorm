@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -60,30 +60,23 @@ int main( int argc, char *argv[] ) {
     bool flag = 0; // 0 when reading filesize, 1 when reading data
     long filesize = 0; // default
     char *eptr;
-    
-    
+
+
     char buffer[1024];
     ssize_t sizeleft = 0;
     while (strcmp(end, buffer) !=0) {
         bzero(buffer, 1024);
         if (flag == false) {
+            // read in 8 bytes, interpret them as a (long) filesize
             n = read(clisockfd, buffer, sizeof(long));
             if (n < 0) {
                 perror("ERROR reading from socket");
                 return(1);
             }
             memcpy(&filesize, buffer, sizeof(long));
-            // flip byte order of entire long
-            /*long temp = 0;
-            long* sizeptr = &filesize; long* tempptr = &temp;
-            for (int i = 0; i < 4; i++){
-                tempptr[i] = ntohs(sizeptr[i]);
-            }*/
-            filesize = htonl(filesize);
-            //filesize = htonl(filesize);
             sizeleft = filesize;
             printf("filesize: %ld\n", filesize);
-            return 0;
+            exit(1);
         } else {
             FILE *writefp = fopen("wm.webm", "w");
             if (writefp == NULL) {
@@ -92,29 +85,13 @@ int main( int argc, char *argv[] ) {
             while (sizeleft > 0) {
                 int readsize = 1024; if (sizeleft < 1024) readsize = sizeleft;
                 n = read_all_from_socket(clisockfd, buffer, readsize);
-                if (n < 0){
+                if (n < 0 || n != readsize){
                     perror("");
                 }
                 fwrite(buffer, 1, 1024, writefp);
                 sizeleft -= n;
             }
             fclose(writefp);
-/*
-            n = read(clisockfd, buffer, filesize);
-            //read_all_from_socket(clisockfd, buffer, filesize);
-            if (n < 0) {
-                perror("ERROR reading from socket");
-                return(1);
-            }
-
-            if (fwrite(buffer, 1, filesize, writefp) != filesize) {
-                printf("Error writing fo file\n");
-            
-            }
-//            printf("tried to write %s\n", buffer);
-        }
-*/
-
         if (flag == false) flag = true;
         else flag = false;
         }
@@ -130,7 +107,7 @@ ssize_t read_all_from_socket(int socket, char *buffer, long count) {
     // Your Code Here
     ssize_t bytes_read = 0;
     ssize_t bytes_left = (ssize_t) count;
-    
+
     while (bytes_left > 0) {
         ssize_t curr_read  = read(socket, buffer, bytes_left);
         if (curr_read == 0) {
@@ -158,7 +135,7 @@ ssize_t write_all_to_socket(int socket, char *buffer, long count) {
     // Your Code Here
     ssize_t bytes_write = 0; // total bytes written
     ssize_t bytes_left = (ssize_t) count;
-    
+
     while (bytes_left > 0) {
         ssize_t curr_write  = write(socket, buffer, bytes_left);
         if (curr_write == 0) {

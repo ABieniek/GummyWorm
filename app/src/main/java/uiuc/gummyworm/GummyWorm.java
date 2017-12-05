@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.MembershipKey;
 import java.nio.channels.SocketChannel;
@@ -152,37 +153,35 @@ public class GummyWorm extends AppCompatActivity {
 
     private void sendWebm(final String dir)
     {
-        if (!running)
-            return;
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // get the file
-                    File fos = new File(dir);
-                    // find the size of the file and send it over the network
-                    long filesize = fos.length();
-                    ByteBuffer numbuf = ByteBuffer.allocate(8); // longs are 8 bytes in java
-                    numbuf.clear();
-                    numbuf.putLong(0, filesize);
-                    channel.write(numbuf);
-                    // copy the file into a buffer and send it over the network
-                    ByteBuffer buf = ByteBuffer.allocate((int)filesize);
-                    buf.clear();
-                    buf.put(Files.readAllBytes(Paths.get(dir)));
-                    buf.flip();
-                    while (buf.hasRemaining()){
-                        channel.write(buf);
-                    }
-
-                }catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-
+        try{
+            if (!running)
+                return;
+            // get the file
+            File fos = new File(dir);
+            // find the size of the file and send it over the network
+            long filesize = fos.length();
+            Log.v(TAG, "size: "+ filesize);
+            ByteBuffer numbuf = ByteBuffer.allocate(8); // longs are 8 bytes in java
+            numbuf.clear();
+            numbuf.order(ByteOrder.LITTLE_ENDIAN);
+            numbuf.putLong(filesize);
+            numbuf.flip();
+            while (numbuf.hasRemaining()){
+                channel.write(numbuf);
             }
-        };
-        new Thread(r).start();
+            // copy the file into a buffer and send it over the network
+            ByteBuffer buf = ByteBuffer.allocate((int)filesize);
+            buf.clear();
+            buf.put(Files.readAllBytes(Paths.get(dir)));
+            buf.flip();
+            while (buf.hasRemaining()){
+                channel.write(buf);
+            }
+        }
+        catch (IOException e)
+        {
+          e.printStackTrace();
+        }
     }
 
     private void startOutputSwapper(final String outputDir1, final String outputDir2)
@@ -207,10 +206,10 @@ public class GummyWorm extends AppCompatActivity {
                         mMediaRecorder.reset();
                         Log.v(TAG, "Stopping Recording");
                         //stopScreenSharing();    // may be unnecessary
-                        /*if (s%2 == 1)
+                        if (s%2 == 1)
                             sendWebm(outputDir1);
                         else
-                            sendWebm(outputDir2);*/
+                            sendWebm(outputDir2);
                         s+=1;
                     }
                 } catch (InterruptedException ie) {ie.printStackTrace();}
@@ -221,7 +220,7 @@ public class GummyWorm extends AppCompatActivity {
 
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
-            startConnection("172.22.148.105", portnumber);
+            startConnection("172.17.0.1", portnumber);
             String dir1 = Environment
                     .getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS) + "/buff1.webm";
