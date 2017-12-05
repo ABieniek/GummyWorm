@@ -76,7 +76,7 @@ int main( int argc, char *argv[] ) {
             memcpy(&filesize, buffer, sizeof(long));
             sizeleft = filesize;
             printf("filesize: %ld\n", filesize);
-            exit(1);
+            //exit(1);
         } else {
             FILE *writefp = fopen("wm.webm", "w");
             if (writefp == NULL) {
@@ -88,13 +88,17 @@ int main( int argc, char *argv[] ) {
                 if (n < 0 || n != readsize){
                     perror("");
                 }
-                fwrite(buffer, 1, 1024, writefp);
+                fwrite(buffer, 1, readsize, writefp);
                 sizeleft -= n;
             }
+            if (sizeleft != 0) fprintf(stderr, "wrote too many bytes to file, sizeleft: %ld\n", sizeleft);
+            else fprintf(stderr, "wrote %ld bytes to file", sizeleft);
             fclose(writefp);
-        if (flag == false) flag = true;
-        else flag = false;
-        }
+            exit(1);
+	   }
+       if (flag == false) flag = true;
+       else flag = false;
+
     }
     //fclose(writefp);
     close(sockfd);
