@@ -69,6 +69,10 @@ int main( int argc, char *argv[] ) {
         if (flag == false) {
             // read in 8 bytes, interpret them as a (long) filesize
             n = read(clisockfd, buffer, sizeof(long));
+            if (n == 0) {
+                close(sockfd);
+                exit(0);
+            } 
             if (n < 0) {
                 perror("ERROR reading from socket");
                 return(1);
@@ -85,23 +89,33 @@ int main( int argc, char *argv[] ) {
             while (sizeleft > 0) {
                 int readsize = 1024; if (sizeleft < 1024) readsize = sizeleft;
                 n = read_all_from_socket(clisockfd, buffer, readsize);
+		if (n == 0) {
+                    close(sockfd);
+                    exit(0);
+                }
                 if (n < 0 || n != readsize){
                     perror("");
+
+                } else if (n == 0) {
+                    close(sockfd);
+                    return 0;
                 }
+
                 fwrite(buffer, 1, readsize, writefp);
                 sizeleft -= n;
             }
-            if (sizeleft != 0) fprintf(stderr, "wrote too many bytes to file, sizeleft: %ld\n", sizeleft);
-            else fprintf(stderr, "wrote %ld bytes to file", sizeleft);
+            if (sizeleft != 0) {
+                fprintf(stderr, "wrote too many bytes to file, sizeleft: %ld\n", sizeleft);
+            } else {
+                fprintf(stderr, "wrote %ld bytes to file", filesize);
+            }
             fclose(writefp);
-            exit(1);
-	   }
+       }
        if (flag == false) flag = true;
        else flag = false;
 
     }
-    //fclose(writefp);
-    close(sockfd);
+    //close(sockfd);
     return 0;
 }
 
@@ -116,7 +130,8 @@ ssize_t read_all_from_socket(int socket, char *buffer, long count) {
         ssize_t curr_read  = read(socket, buffer, bytes_left);
         if (curr_read == 0) {
             // connection closed, return total bytes read
-            return bytes_read;
+            return 0;
+            //return bytes_read;
         } else if (curr_read == -1 && errno == EINTR) {
             // read interrupted, try again
         } else if (curr_read == -1 && errno != EINTR) {
