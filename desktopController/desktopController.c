@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
@@ -14,14 +15,22 @@
 #include <pthread.h>
 #include "tcpserver.h"
 #include <time.h>
+#include <dirent.h>
 
 typedef struct{
 	int writebuffidx;
 	char** filenameLists[2];
 	int nameListLengths[2];
-	pthread_mutex_t locks[2];
+	char* videoFileName;
+	pthread_mutex_t* readlock;
+	pthread_cond_t* writecond;
+	pthread_mutex_t* writelock;
+	bool* videoWritten;
+	char* outdir[2];
+	char* outname[2];
 } displayArg;
 void* runDisplay(void* arg);
+void* runffmpeg(void* arg);
 
 int main(int argc, char **argv)
 {
@@ -29,50 +38,122 @@ int main(int argc, char **argv)
 	sa->portnumber = 2410;
 	sa->videoFileName = "gotvideo.webm";
 	pthread_t serverid;
-	pthread_create(&serverid, NULL, runServer, sa);
+	//pthread_create(&serverid, NULL, runServer, sa);
 
 	displayArg* da = malloc(sizeof(displayArg));
-	da->nameListLengths[0] = 16;
-	da->filenameLists[0] = malloc(16*sizeof(char*));
-	da->filenameLists[0][0] = "imagelist0/frame1.jpg";
-	da->filenameLists[0][1] = "imagelist0/frame2.jpg";
-	da->filenameLists[0][2] = "imagelist0/frame3.jpg";
-	da->filenameLists[0][3] = "imagelist0/frame4.jpg";
-	da->filenameLists[0][4] = "imagelist0/frame5.jpg";
-	da->filenameLists[0][5] = "imagelist0/frame6.jpg";
-	da->filenameLists[0][6] = "imagelist0/frame7.jpg";
-	da->filenameLists[0][7] = "imagelist0/frame8.jpg";
-	da->filenameLists[0][8] = "imagelist0/frame9.jpg";
-	da->filenameLists[0][9] = "imagelist0/frame10.jpg";
-	da->filenameLists[0][10] = "imagelist0/frame11.jpg";
-	da->filenameLists[0][11] = "imagelist0/frame12.jpg";
-	da->filenameLists[0][12] = "imagelist0/frame13.jpg";
-	da->filenameLists[0][13] = "imagelist0/frame14.jpg";
-	da->filenameLists[0][14] = "imagelist0/frame15.jpg";
-	da->filenameLists[0][15] = "imagelist0/frame16.jpg";
-	da->nameListLengths[1] = 17;
-	da->filenameLists[1] = malloc(17*sizeof(char*));
-	da->filenameLists[1][0] = "imagelist1/frame1.jpg";
-	da->filenameLists[1][1] = "imagelist1/frame2.jpg";
-	da->filenameLists[1][2] = "imagelist1/frame3.jpg";
-	da->filenameLists[1][3] = "imagelist1/frame4.jpg";
-	da->filenameLists[1][4] = "imagelist1/frame5.jpg";
-	da->filenameLists[1][5] = "imagelist1/frame6.jpg";
-	da->filenameLists[1][6] = "imagelist1/frame7.jpg";
-	da->filenameLists[1][7] = "imagelist1/frame8.jpg";
-	da->filenameLists[1][8] = "imagelist1/frame9.jpg";
-	da->filenameLists[1][9] = "imagelist1/frame10.jpg";
-	da->filenameLists[1][10] = "imagelist1/frame11.jpg";
-	da->filenameLists[1][11] = "imagelist1/frame12.jpg";
-	da->filenameLists[1][12] = "imagelist1/frame13.jpg";
-	da->filenameLists[1][13] = "imagelist1/frame14.jpg";
-	da->filenameLists[1][14] = "imagelist1/frame15.jpg";
-	da->filenameLists[1][15] = "imagelist1/frame16.jpg";
-	da->filenameLists[1][16] = "imagelist1/frame17.jpg";
+	da->writecond = sa->writecond = malloc(sizeof(pthread_cond_t));
+	da->writelock = sa->writelock = malloc(sizeof(pthread_mutex_t));
+	da->readlock = malloc(sizeof(pthread_mutex_t));
+	da->videoWritten = sa->videoWritten = malloc(sizeof(bool));
+	pthread_mutex_init(da->writelock, NULL);
+	pthread_cond_init(da->writecond, NULL);
+	pthread_mutex_init(da->readlock, NULL);
+	*(da->videoWritten) = false;
+	da->videoFileName = sa->videoFileName = "gotvideo.webm";
+	da->outdir[0] = "imagelist0";
+	da->outdir[1] = "imagelist1";
+	da->outname[0] = "imagelist0/frame%03d.jpg";
+	da->outname[1] = "imagelist1/frame%03d.jpg";
+	da->writebuffidx = 0;
+	pthread_t ffmpegid;
+
+	da->nameListLengths[0] = 17;
+	da->filenameLists[0] = malloc(17*sizeof(char*));
+	da->filenameLists[0][0] = "imagelist0/frame001.jpg";
+	da->filenameLists[0][1] = "imagelist0/frame002.jpg";
+	da->filenameLists[0][2] = "imagelist0/frame003.jpg";
+	da->filenameLists[0][3] = "imagelist0/frame004.jpg";
+	da->filenameLists[0][4] = "imagelist0/frame005.jpg";
+	da->filenameLists[0][5] = "imagelist0/frame006.jpg";
+	da->filenameLists[0][6] = "imagelist0/frame007.jpg";
+	da->filenameLists[0][7] = "imagelist0/frame008.jpg";
+	da->filenameLists[0][8] = "imagelist0/frame009.jpg";
+	da->filenameLists[0][9] = "imagelist0/frame010.jpg";
+	da->filenameLists[0][10] = "imagelist0/frame011.jpg";
+	da->filenameLists[0][11] = "imagelist0/frame012.jpg";
+	da->filenameLists[0][12] = "imagelist0/frame013.jpg";
+	da->filenameLists[0][13] = "imagelist0/frame014.jpg";
+	da->filenameLists[0][14] = "imagelist0/frame015.jpg";
+	da->filenameLists[0][15] = "imagelist0/frame016.jpg";
+	da->filenameLists[0][16] = "imagelist0/frame017.jpg";
+	da->nameListLengths[1] = 18;
+	da->filenameLists[1] = malloc(18*sizeof(char*));
+	da->filenameLists[1][0] = "imagelist1/frame001.jpg";
+	da->filenameLists[1][1] = "imagelist1/frame002.jpg";
+	da->filenameLists[1][2] = "imagelist1/frame003.jpg";
+	da->filenameLists[1][3] = "imagelist1/frame004.jpg";
+	da->filenameLists[1][4] = "imagelist1/frame005.jpg";
+	da->filenameLists[1][5] = "imagelist1/frame006.jpg";
+	da->filenameLists[1][6] = "imagelist1/frame007.jpg";
+	da->filenameLists[1][7] = "imagelist1/frame008.jpg";
+	da->filenameLists[1][8] = "imagelist1/frame009.jpg";
+	da->filenameLists[1][9] = "imagelist1/frame010.jpg";
+	da->filenameLists[1][10] = "imagelist1/frame011.jpg";
+	da->filenameLists[1][11] = "imagelist1/frame012.jpg";
+	da->filenameLists[1][12] = "imagelist1/frame013.jpg";
+	da->filenameLists[1][13] = "imagelist1/frame014.jpg";
+	da->filenameLists[1][14] = "imagelist1/frame015.jpg";
+	da->filenameLists[1][15] = "imagelist1/frame016.jpg";
+	da->filenameLists[1][16] = "imagelist1/frame017.jpg";
+	da->filenameLists[1][17] = "imagelist1/frame018.jpg";
+
+	//pthread_create(&ffmpegid, NULL, runffmpeg, da);
 	pthread_t displayid;
 	pthread_create(&displayid, NULL, runDisplay, da);
 	pthread_exit(NULL);
 	exit(0);
+}
+
+void* runffmpeg(void* arg)
+{
+	while (1)
+	{
+		displayArg* da = (displayArg*) arg;
+		pthread_mutex_lock(da->writelock);
+		while (*(da->videoWritten) == false)
+		{
+			pthread_cond_wait(da->writecond, da->writelock);
+		}
+		// use ffmpeg to turn video into images
+		pid_t p = fork();
+		if (p == 0)
+		{
+			close(STDOUT_FILENO); close(STDERR_FILENO); // close writing
+			execlp("ffmpeg", "ffmpeg", "-i", da->videoFileName, "-r", "24", da->outname[da->writebuffidx], NULL);
+			perror("");
+			exit(12);
+		}
+		waitpid(p, NULL, 0);
+		// load filenames into struct
+		da->nameListLengths[da->writebuffidx] = 0;
+		DIR* dirp = opendir(da->outdir[da->writebuffidx]);
+		struct dirent* entry;
+		while ((entry = readdir(dirp)) != NULL)
+		{
+			if (entry->d_type == DT_REG)
+			da->nameListLengths[da->writebuffidx]++;
+		}
+		rewinddir(dirp);
+		char** strptr = da->filenameLists[da->writebuffidx]
+		= malloc(da->nameListLengths[da->writebuffidx] * sizeof(char*));
+		int i = 0;
+		while ((entry = readdir(dirp)) != NULL)
+		{
+			if (entry->d_type == DT_REG)
+			{
+				strptr[i] = malloc(strlen(entry->d_name)+1);
+				strcpy(strptr[i], entry->d_name);
+				i++;
+			}
+		}
+		*(da->videoWritten) = false;
+		pthread_cond_signal(da->writecond);
+		pthread_mutex_unlock(da->writelock);
+		pthread_mutex_lock(da->readlock);
+		da->writebuffidx = (da->writebuffidx+1)%2;
+		pthread_mutex_unlock(da->readlock);
+	}
+	return NULL;
 }
 
 void* runDisplay(void* arg)
@@ -89,6 +170,7 @@ void* runDisplay(void* arg)
 		// find separate
 	SDL_Surface * image;// = IMG_Load("image.jpg");
 	SDL_Texture * texture;// = SDL_CreateTextureFromSurface(renderer, image);
+	//texture = SDL_CreateTextureFromSurface(renderer, image);
 
 	// I want to show the n images evenly over 1 second
 	struct timespec screendur;
@@ -96,16 +178,29 @@ void* runDisplay(void* arg)
 	int buffidx = 0;
 	while (!quit)
 	{
-		/*if (da->writebuffidx == 1) // we're gonna read from buffer 0
+		/*
+		pthread_mutex_lock(da->writelock);
+		while (*da->videoWritten == false)
+		{
+			pthread_cond_wait(da->writecond, da->writelock);
+		}
+		pthread_mutex_unlock(da->writelock);
+		*/
+		/*
+		if (da->writebuffidx == 1) // we're gonna read from buffer 0
 			buffidx = 0;
 		else if (da->writebuffidx == 0) // we're gonna read from buffer 1
-			buffidx = 1;*/
+			buffidx = 1;
+			*/
+		buffidx = (buffidx+1)%2;
+		if (da->nameListLengths[buffidx] == 0) continue;
 		screendur.tv_nsec = 1000000000 / da->nameListLengths[buffidx];
 		int imgidx;
 		for (imgidx = 0; imgidx < da->nameListLengths[buffidx]; imgidx++)
 		{
 			image = IMG_Load(da->filenameLists[buffidx][imgidx]);
 			texture = SDL_CreateTextureFromSurface(renderer, image);
+			// @TODO clean up texture loading to avoid memory leaks
 			SDL_WaitEvent(&event);
 
 			switch (event.type)
@@ -120,7 +215,6 @@ void* runDisplay(void* arg)
 			SDL_RenderPresent(renderer);
 			nanosleep(&screendur, NULL);
 		}
-		buffidx = (buffidx+1)%2;
 	}
 
 	SDL_DestroyTexture(texture);
@@ -131,5 +225,5 @@ void* runDisplay(void* arg)
 	 	IMG_Quit();
 	SDL_Quit();
 
-	return 0;
+	return NULL;
 }

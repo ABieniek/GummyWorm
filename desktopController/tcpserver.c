@@ -80,14 +80,20 @@ void* runServer(void* arg) {
             memcpy(&filesize, buffer, sizeof(long));
             sizeleft = filesize;
         } else {
+            pthread_mutex_lock(sa->writelock);
+            while (*(sa->videoWritten) == true)
+            {
+                pthread_cond_wait(sa->writecond, sa->writelock);
+            }
             FILE *writefp = fopen(outputname, "w");
             if (writefp == NULL) {
                 printf("Error to open file\n");
             }
-            while (sizeleft > 0) {
+            while (sizeleft > 0)
+            {
                 int readsize = 1024; if (sizeleft < 1024) readsize = sizeleft;
                 n = read_all_from_socket(clisockfd, buffer, readsize);
-		if (n == 0) {
+                if (n == 0) {
                     close(sockfd);
                     exit(0);
                 }
@@ -106,6 +112,9 @@ void* runServer(void* arg) {
                 fprintf(stderr, "wrote too many bytes to file, sizeleft: %ld\n", sizeleft);
             }
             fclose(writefp);
+            *(sa->videoWritten) = true;
+            pthread_cond_signal(sa->writecond);
+        	pthread_mutex_unlock(sa->writelock);
        }
        if (flag == false) flag = true;
        else flag = false;

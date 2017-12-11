@@ -16,6 +16,9 @@ ssize_t read_all_from_socket(int socket,  char *buffer, long count);
 typedef struct{
 	int portnumber;
 	char* videoFileName;
+	pthread_cond_t* writecond;
+	pthread_mutex_t* writelock;
+	bool* videoWritten;
 } serverArg;
 
 void* runServer(void* arg);
