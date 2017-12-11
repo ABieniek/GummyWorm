@@ -220,7 +220,7 @@ public class GummyWorm extends AppCompatActivity {
 
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
-            startConnection("172.17.0.1", portnumber);
+            startConnection("192.168.122.1", portnumber);
             String dir1 = Environment
                     .getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS) + "/buff1.webm";
@@ -285,13 +285,22 @@ public class GummyWorm extends AppCompatActivity {
 
     private void initRecorder(final String outputDir) {
         try{
-            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            //mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            // output formats:
+            // THREE_GPP - mp4
+            // WEBM - webm
             mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
             mMediaRecorder.setOutputFile(outputDir);
             mMediaRecorder.setVideoSize(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+            // video encoders:
+            // VP8 - webm
+            // MPEG_4_SP - mp4
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
-            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.VORBIS);
+            // audio encoders:
+            // VORBIS - webm
+            // HE_AAC - mp4
+            //mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
             mMediaRecorder.setVideoFrameRate(30);
             int rotation = getWindowManager().getDefaultDisplay().getRotation();

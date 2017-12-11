@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 			quit = true;
 			break;
 		}
-
 		//SDL_Rect dstrect = { 5, 5, 320, 240 };
 		//SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 		SDL_RenderCopy(renderer, texture, NULL, NULL);

@@ -82,7 +82,7 @@ int main( int argc, char *argv[] ) {
             printf("filesize: %ld\n", filesize);
             //exit(1);
         } else {
-            FILE *writefp = fopen("wm.webm", "w");
+            FILE *writefp = fopen("gotvideo.webm", "w");
             if (writefp == NULL) {
                 printf("Error to open file\n");
             }
