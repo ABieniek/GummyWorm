@@ -9,14 +9,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdbool.h>
+#include "tcpserver.h"
 
-ssize_t write_all_to_socket(int socket,  char *buffer, long count);
-ssize_t read_all_from_socket(int socket,  char *buffer, long count);
-
-int main( int argc, char *argv[] ) {
+void* runServer(void* arg) {
+    serverArg* sa = (serverArg*) arg;
+    int portno = sa->portnumber;
+    char* outputname = sa->videoFileName;
     printf("Wating for connection...\n");
-    int sockfd, clisockfd, portno;
-    char *end = "bye\n";
+    int sockfd, clisockfd;
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
     int  n;
@@ -25,7 +25,7 @@ int main( int argc, char *argv[] ) {
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("ERROR opening socket");
-        return(1);
+        exit(1);
     }
 
     int optval = 1;
@@ -44,7 +44,7 @@ int main( int argc, char *argv[] ) {
 
     if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
         perror("ERROR on binding");
-        return(1);
+        exit(1);
     }
 
     listen(sockfd,5);
@@ -54,7 +54,7 @@ int main( int argc, char *argv[] ) {
 
     if (clisockfd < 0) {
         perror("ERROR on accept");
-        return(1);
+        exit(1);
     }
     printf("Made connection\n");
     bool flag = 0; // 0 when reading filesize, 1 when reading data
@@ -64,7 +64,7 @@ int main( int argc, char *argv[] ) {
 
     char buffer[1024];
     ssize_t sizeleft = 0;
-    while (strcmp(end, buffer) !=0) {
+    while (1) {
         bzero(buffer, 1024);
         if (flag == false) {
             // read in 8 bytes, interpret them as a (long) filesize
@@ -72,17 +72,15 @@ int main( int argc, char *argv[] ) {
             if (n == 0) {
                 close(sockfd);
                 exit(0);
-            } 
+            }
             if (n < 0) {
                 perror("ERROR reading from socket");
-                return(1);
+                exit(1);
             }
             memcpy(&filesize, buffer, sizeof(long));
             sizeleft = filesize;
-            printf("filesize: %ld\n", filesize);
-            //exit(1);
         } else {
-            FILE *writefp = fopen("gotvideo.webm", "w");
+            FILE *writefp = fopen(outputname, "w");
             if (writefp == NULL) {
                 printf("Error to open file\n");
             }
@@ -106,8 +104,6 @@ int main( int argc, char *argv[] ) {
             }
             if (sizeleft != 0) {
                 fprintf(stderr, "wrote too many bytes to file, sizeleft: %ld\n", sizeleft);
-            } else {
-                fprintf(stderr, "wrote %ld bytes to file", filesize);
             }
             fclose(writefp);
        }
