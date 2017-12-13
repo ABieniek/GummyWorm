@@ -108,7 +108,7 @@ void* runffmpeg(void* arg)
 		{
 			if (entry->d_type == DT_REG)
 			{
-				strptr[i] = malloc(strlen(da->outdir[da->writebuffidx]) + 
+				strptr[i] = malloc(strlen(da->outdir[da->writebuffidx]) +
 					strlen(entry->d_name)+1);
 				strcpy(strptr[i], da->outdir[da->writebuffidx]);
 				strcat(strptr[i], entry->d_name);
@@ -136,10 +136,9 @@ void* runDisplay(void* arg)
 
 	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
 		// find separate
-	SDL_Surface * image;// = IMG_Load("image.jpg");
-	SDL_Texture * texture;// = SDL_CreateTextureFromSurface(renderer, image);
-	//SDL_Texture* streamTexture = SDL_CreateTexture(renderer,
-	//	SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, 640, 480);
+	SDL_Surface * image = NULL;// = IMG_Load("image.jpg");
+	//SDL_Texture * texture;// = SDL_CreateTextureFromSurface(renderer, image);
+	SDL_Texture* streamTexture = NULL;
 	//texture = SDL_CreateTextureFromSurface(renderer, image);
 
 	// I want to show the n images evenly over 1 second
@@ -150,32 +149,25 @@ void* runDisplay(void* arg)
 	pthread_barrier_wait(da->barrier);
 	while (!quit)
 	{
-		/*
-		pthread_mutex_lock(da->writelock);
-		while (*da->videoWritten == false)
-		{
-			pthread_cond_wait(da->writecond, da->writelock);
-		}
-		pthread_mutex_unlock(da->writelock);
-		*/
-
 		if (da->writebuffidx == 1) // we're gonna read from buffer 0
 			buffidx = 0;
 		else if (da->writebuffidx == 0) // we're gonna read from buffer 1
 			buffidx = 1;
-		// buffidx = (buffidx+1)%2;
 		if (da->nameListLengths[buffidx] == 0) continue;
 		screendur.tv_nsec = 1000000000 / da->nameListLengths[buffidx];
 
 		int imgidx; for (imgidx = 0; imgidx < da->nameListLengths[buffidx]; imgidx++)
 		{
-			// @TODO clean up texture loading to avoid memory leaks
-			image = IMG_Load(da->filenameLists[buffidx][imgidx]);
-			//SDL_LockTexture(streamTexture, NULL, (void**)image, &pitch);
+			if (streamTexture == NULL)
+				streamTexture = SDL_CreateTexture(renderer,
+					SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING,
+					640, 480);
 
-			//SDL_UnlockTexture(streamTexture);
-			texture = SDL_CreateTextureFromSurface(renderer, image);
-			//SDL_WaitEvent(&event);
+			image = IMG_Load(da->filenameLists[buffidx][imgidx]);
+			// clean up texture loading to avoid memory leaks
+			SDL_LockTexture(streamTexture, NULL, image->pixels, &(image->pitch));
+			SDL_UpdateTexture(streamTexture, NULL, image->pixels, image->pitch);
+			SDL_UnlockTexture(streamTexture);
 
 			switch (event.type)
 			{
@@ -183,12 +175,11 @@ void* runDisplay(void* arg)
 				quit = true;
 				break;
 			}
-			//SDL_Rect dstrect = { 5, 5, 320, 240 };
-			//SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-			SDL_RenderCopy(renderer, texture, NULL, NULL);
+			SDL_RenderCopy(renderer, streamTexture, NULL, NULL);
 			SDL_RenderPresent(renderer);
+
 			nanosleep(&screendur, NULL);
-			SDL_DestroyTexture(texture);
+
 			SDL_FreeSurface(image);
 			unlink(da->filenameLists[buffidx][imgidx]);
 			free(da->filenameLists[buffidx][imgidx]);
@@ -196,7 +187,7 @@ void* runDisplay(void* arg)
 		pthread_barrier_wait(da->barrier);
 	}
 
-	SDL_DestroyTexture(texture);
+	SDL_DestroyTexture(streamTexture);
 	SDL_FreeSurface(image);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
