@@ -40,6 +40,6 @@
         android:accessibilityLiveRegion="polite"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="IPv6 Address" />
+        android:text="Insert IPv4 Address" />
 
 </RelativeLayout>

@@ -69,8 +69,7 @@ public class GummyWorm extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS = 10;
     private boolean running = false;
     private boolean connected = false;
-    private TextView Ipv6TextView;
-    private static String strIpv6address = "0.0.0.0";
+    private TextView Ipv4TextView;
     private static int portnumber = 2410;
     private SocketChannel channel;
     static {
@@ -89,7 +88,7 @@ public class GummyWorm extends AppCompatActivity {
         mScreenDensity = metrics.densityDpi;
 
         mMediaRecorder = new MediaRecorder();
-        Ipv6TextView = (TextView) findViewById(R.id.IPv6PlainText);
+        Ipv4TextView = (TextView) findViewById(R.id.IPv6PlainText);
 
         mProjectionManager = (MediaProjectionManager) getSystemService
                 (Context.MEDIA_PROJECTION_SERVICE);
@@ -220,7 +219,8 @@ public class GummyWorm extends AppCompatActivity {
 
     public void onToggleScreenShare(View view) {
         if (((ToggleButton) view).isChecked()) {
-            startConnection("192.168.122.1", portnumber);
+            String Ipv4Address = Ipv4TextView.getText().toString();
+            startConnection(Ipv4Address, portnumber);
             String dir1 = Environment
                     .getExternalStoragePublicDirectory(Environment
                             .DIRECTORY_DOWNLOADS) + "/buff1.webm";

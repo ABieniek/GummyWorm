@@ -63,48 +63,6 @@ int main(int argc, char **argv)
 	da->outname[1] = "imagelist1/frame%03d.jpg";
 	da->writebuffidx = 0;
 
-	/*
-	da->nameListLengths[0] = 17;
-	da->filenameLists[0] = malloc(17*sizeof(char*));
-	da->filenameLists[0][0] = "imagelist0/frame001.jpg";
-	da->filenameLists[0][1] = "imagelist0/frame002.jpg";
-	da->filenameLists[0][2] = "imagelist0/frame003.jpg";
-	da->filenameLists[0][3] = "imagelist0/frame004.jpg";
-	da->filenameLists[0][4] = "imagelist0/frame005.jpg";
-	da->filenameLists[0][5] = "imagelist0/frame006.jpg";
-	da->filenameLists[0][6] = "imagelist0/frame007.jpg";
-	da->filenameLists[0][7] = "imagelist0/frame008.jpg";
-	da->filenameLists[0][8] = "imagelist0/frame009.jpg";
-	da->filenameLists[0][9] = "imagelist0/frame010.jpg";
-	da->filenameLists[0][10] = "imagelist0/frame011.jpg";
-	da->filenameLists[0][11] = "imagelist0/frame012.jpg";
-	da->filenameLists[0][12] = "imagelist0/frame013.jpg";
-	da->filenameLists[0][13] = "imagelist0/frame014.jpg";
-	da->filenameLists[0][14] = "imagelist0/frame015.jpg";
-	da->filenameLists[0][15] = "imagelist0/frame016.jpg";
-	da->filenameLists[0][16] = "imagelist0/frame017.jpg";
-	da->nameListLengths[1] = 18;
-	da->filenameLists[1] = malloc(18*sizeof(char*));
-	da->filenameLists[1][0] = "imagelist1/frame001.jpg";
-	da->filenameLists[1][1] = "imagelist1/frame002.jpg";
-	da->filenameLists[1][2] = "imagelist1/frame003.jpg";
-	da->filenameLists[1][3] = "imagelist1/frame004.jpg";
-	da->filenameLists[1][4] = "imagelist1/frame005.jpg";
-	da->filenameLists[1][5] = "imagelist1/frame006.jpg";
-	da->filenameLists[1][6] = "imagelist1/frame007.jpg";
-	da->filenameLists[1][7] = "imagelist1/frame008.jpg";
-	da->filenameLists[1][8] = "imagelist1/frame009.jpg";
-	da->filenameLists[1][9] = "imagelist1/frame010.jpg";
-	da->filenameLists[1][10] = "imagelist1/frame011.jpg";
-	da->filenameLists[1][11] = "imagelist1/frame012.jpg";
-	da->filenameLists[1][12] = "imagelist1/frame013.jpg";
-	da->filenameLists[1][13] = "imagelist1/frame014.jpg";
-	da->filenameLists[1][14] = "imagelist1/frame015.jpg";
-	da->filenameLists[1][15] = "imagelist1/frame016.jpg";
-	da->filenameLists[1][16] = "imagelist1/frame017.jpg";
-	da->filenameLists[1][17] = "imagelist1/frame018.jpg";
-	*/
-
 	pthread_t ffmpegid;
 	pthread_create(&ffmpegid, NULL, runffmpeg, da);
 	pthread_t displayid;
@@ -150,7 +108,8 @@ void* runffmpeg(void* arg)
 		{
 			if (entry->d_type == DT_REG)
 			{
-				strptr[i] = malloc(strlen(entry->d_name)+1);
+				strptr[i] = malloc(strlen(da->outdir[da->writebuffidx]) + 
+					strlen(entry->d_name)+1);
 				strcpy(strptr[i], da->outdir[da->writebuffidx]);
 				strcat(strptr[i], entry->d_name);
 				i++;
@@ -231,18 +190,9 @@ void* runDisplay(void* arg)
 			nanosleep(&screendur, NULL);
 			SDL_DestroyTexture(texture);
 			SDL_FreeSurface(image);
+			unlink(da->filenameLists[buffidx][imgidx]);
+			free(da->filenameLists[buffidx][imgidx]);
 		}
-		/*
-		pid_t p = fork();
-		if (p == 0)
-		{
-			execlp("rm", "rm", da->outdirstar[buffidx], NULL);
-			perror("");
-			exit(6);
-		}
-		waitpid(p, NULL, 0);
-		*/
-
 		pthread_barrier_wait(da->barrier);
 	}
 
