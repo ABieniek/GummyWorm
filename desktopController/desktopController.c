@@ -132,7 +132,10 @@ void* runDisplay(void* arg)
 	IMG_Init(IMG_INIT_JPG);
 
 	SDL_Window * window = SDL_CreateWindow("SDL2 Displaying Image",
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 720, 1280, 0);
+	SDL_Rect rect;
+	rect.x = rect.y = 0;
+	rect.w = 720; rect.h = 1280;
 
 	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
 		// find separate
@@ -142,7 +145,6 @@ void* runDisplay(void* arg)
 	//texture = SDL_CreateTextureFromSurface(renderer, image);
 
 	// I want to show the n images evenly over 1 second
-	//	int pitch = 480;
 	struct timespec screendur;
 	bool quit = false;
 	int buffidx;
@@ -161,12 +163,12 @@ void* runDisplay(void* arg)
 			if (streamTexture == NULL)
 				streamTexture = SDL_CreateTexture(renderer,
 					SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING,
-					640, 480);
+					720, 1280);
 
 			image = IMG_Load(da->filenameLists[buffidx][imgidx]);
 			// clean up texture loading to avoid memory leaks
-			SDL_LockTexture(streamTexture, NULL, image->pixels, &(image->pitch));
-			SDL_UpdateTexture(streamTexture, NULL, image->pixels, image->pitch);
+			SDL_LockTexture(streamTexture, &rect, image->pixels, &(image->pitch));
+			SDL_UpdateTexture(streamTexture, &rect, image->pixels, image->pitch);
 			SDL_UnlockTexture(streamTexture);
 
 			switch (event.type)
