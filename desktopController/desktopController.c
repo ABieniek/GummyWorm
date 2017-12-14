@@ -135,35 +135,22 @@ void* runDisplay(void* arg)
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
 
 	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
-		// find separate
 	SDL_Surface * image;// = IMG_Load("image.jpg");
 	SDL_Texture * texture;// = SDL_CreateTextureFromSurface(renderer, image);
 	//SDL_Texture* streamTexture = SDL_CreateTexture(renderer,
 	//	SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING, 640, 480);
-	//texture = SDL_CreateTextureFromSurface(renderer, image);
 
 	// I want to show the n images evenly over 1 second
-	//	int pitch = 480;
 	struct timespec screendur;
 	bool quit = false;
 	int buffidx;
 	pthread_barrier_wait(da->barrier);
 	while (!quit)
 	{
-		/*
-		pthread_mutex_lock(da->writelock);
-		while (*da->videoWritten == false)
-		{
-			pthread_cond_wait(da->writecond, da->writelock);
-		}
-		pthread_mutex_unlock(da->writelock);
-		*/
-
 		if (da->writebuffidx == 1) // we're gonna read from buffer 0
 			buffidx = 0;
 		else if (da->writebuffidx == 0) // we're gonna read from buffer 1
 			buffidx = 1;
-		// buffidx = (buffidx+1)%2;
 		if (da->nameListLengths[buffidx] == 0) continue;
 		screendur.tv_nsec = 1000000000 / da->nameListLengths[buffidx];
 
@@ -175,7 +162,7 @@ void* runDisplay(void* arg)
 
 			//SDL_UnlockTexture(streamTexture);
 			texture = SDL_CreateTextureFromSurface(renderer, image);
-			//SDL_WaitEvent(&event);
+			SDL_WaitEvent(&event);
 
 			switch (event.type)
 			{
@@ -183,8 +170,6 @@ void* runDisplay(void* arg)
 				quit = true;
 				break;
 			}
-			//SDL_Rect dstrect = { 5, 5, 320, 240 };
-			//SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 			SDL_RenderCopy(renderer, texture, NULL, NULL);
 			SDL_RenderPresent(renderer);
 			nanosleep(&screendur, NULL);
@@ -201,7 +186,7 @@ void* runDisplay(void* arg)
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 
-	 	IMG_Quit();
+	IMG_Quit();
 	SDL_Quit();
 
 	return NULL;
