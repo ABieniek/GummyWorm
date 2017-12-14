@@ -108,7 +108,7 @@ void* runffmpeg(void* arg)
 		{
 			if (entry->d_type == DT_REG)
 			{
-				strptr[i] = malloc(strlen(da->outdir[da->writebuffidx]) + 
+				strptr[i] = malloc(strlen(da->outdir[da->writebuffidx]) +
 					strlen(entry->d_name)+1);
 				strcpy(strptr[i], da->outdir[da->writebuffidx]);
 				strcat(strptr[i], entry->d_name);
@@ -132,7 +132,10 @@ void* runDisplay(void* arg)
 	IMG_Init(IMG_INIT_JPG);
 
 	SDL_Window * window = SDL_CreateWindow("SDL2 Displaying Image",
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 720, 1280, 0);
+	SDL_Rect rect;
+	rect.x = rect.y = 0;
+	rect.w = 720; rect.h = 1280;
 
 	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_Surface * image;// = IMG_Load("image.jpg");
@@ -156,11 +159,14 @@ void* runDisplay(void* arg)
 
 		int imgidx; for (imgidx = 0; imgidx < da->nameListLengths[buffidx]; imgidx++)
 		{
-			// @TODO clean up texture loading to avoid memory leaks
-			image = IMG_Load(da->filenameLists[buffidx][imgidx]);
-			//SDL_LockTexture(streamTexture, NULL, (void**)image, &pitch);
+			/*if (streamTexture == NULL)
+				streamTexture = SDL_CreateTexture(renderer,
+					SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_STREAMING,
+					720, 1280);
+			*/
 
 			//SDL_UnlockTexture(streamTexture);
+			image = IMG_Load(da->filenameLists[buffidx][imgidx]);
 			texture = SDL_CreateTextureFromSurface(renderer, image);
 			SDL_WaitEvent(&event);
 
@@ -172,8 +178,9 @@ void* runDisplay(void* arg)
 			}
 			SDL_RenderCopy(renderer, texture, NULL, NULL);
 			SDL_RenderPresent(renderer);
+
 			nanosleep(&screendur, NULL);
-			SDL_DestroyTexture(texture);
+
 			SDL_FreeSurface(image);
 			unlink(da->filenameLists[buffidx][imgidx]);
 			free(da->filenameLists[buffidx][imgidx]);
